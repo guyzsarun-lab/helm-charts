@@ -66,11 +66,9 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
             - name: storage
               mountPath: /datastore
-          {{- end }}
           {{- with .Values.changedetection.environmentVariables }}
           env:
             {{- toYaml . | nindent 12 }}
