@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "changedetection.fullname" . }}
+  labels:
+    {{- include "changedetection.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "changedetection.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "changedetection.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: playwright-sidecar
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.playwrightSidecar.image.repository }}:{{ .Values.playwrightSidecar.image.tag }}"
+          ports:
+            - name: http
+              containerPort: 4444
+              protocol: TCP
+          {{- with .Values.playwrightSidecar.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.playwrightSidecar.environmentVariables }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.changedetection.image.repository }}:{{ .Values.changedetection.image.tag | default .Chart.AppVersion }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          {{- with .Values.changedetection.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            - name: storage
+              mountPath: /datastore
+          {{- end }}
+          {{- with .Values.changedetection.environmentVariables }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end}}
+      volumes:
+        - name: storage
+        {{- if .Values.changedetection.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.changedetection.persistence.volumeClaimName }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}

@@ -1,0 +1,9 @@
+apiVersion: v2
+name: changedetection
+description: The Change Detection application is a tool that allows users to monitor changes on web pages and receive notifications when changes are detected.
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
+maintainers:
+  - name: guyzsarun
+    url: https://github.com/guyzsarun
