@@ -1,0 +1,4 @@
+1. Check istiod service is successfully installed and its pods are running:
+kubectl get deployments -n istio-system --output wide
+2. To enable istio sidecar injection on a namespace run the following commands:
+kubectl label namespace NAMESPACE istio-injection=enabled --overwrite
