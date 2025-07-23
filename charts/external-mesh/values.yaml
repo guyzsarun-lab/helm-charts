@@ -1,0 +1,4 @@
+hosts:
+  - www.example.com
+
+# Additional configurable parameters can be added here as needed.

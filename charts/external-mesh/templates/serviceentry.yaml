@@ -1,0 +1,19 @@
+{{- range $host := .Values.hosts }}
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: {{ $host }}
+spec:
+  hosts:
+    - {{ $host }}
+  ports:
+    - number: 80
+      name: http-port
+      protocol: HTTP
+      targetPort: 443
+    - number: 443
+      name: http-port-for-tls-origination
+      protocol: HTTPS
+  resolution: DNS
+---
+{{- end }}
