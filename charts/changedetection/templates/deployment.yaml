@@ -44,12 +44,18 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            - mountPath: /tmp
+              name: cache-volume
+            {{- with .Values.volumeMounts }}
+            {{- range . }}
+            - {{- toYaml . | nindent 14 }}
+            {{- end }}
+            {{- end }}
           {{- with .Values.playwrightSidecar.environmentVariables }}
           env:
+            - name: CHROME_USER_DATA_DIR
+              value: /tmp
             {{- toYaml . | nindent 12 }}
           {{- end}}
         - name: {{ .Chart.Name }}
@@ -81,3 +87,7 @@ spec:
         {{- else }}
           emptyDir: {}
         {{- end }}
+        - name: cache-volume
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512Mi
