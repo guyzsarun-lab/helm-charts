@@ -52,8 +52,8 @@ spec:
           {{- end }}
           {{- with .Values.playwrightSidecar.environmentVariables }}
           env:
-          - name: CHROME_USER_DATA_DIR
-            value: /tmp
+            - name: CHROME_USER_DATA_DIR
+              value: /tmp
             {{- toYaml . | nindent 12 }}
           {{- end}}
         - name: {{ .Chart.Name }}
